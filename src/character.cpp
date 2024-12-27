@@ -4,8 +4,8 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/System/Vector2.hpp>
 
-Character::Character(sf::RenderWindow *window, const char *texturePath, float x,
-                     float y) {
+Character::Character(sf::RenderWindow *window, const char *texturePath,
+                     sf::Vector2f pos) {
   this->window = window;
 
   std::filesystem::path fullPath =
@@ -23,10 +23,11 @@ Character::Character(sf::RenderWindow *window, const char *texturePath, float x,
 
   this->characterRect = sf::IntRect({0, 0}, {128, 128});
   this->sprite = new sf::Sprite(Itexture, this->characterRect);
-  this->sprite->setPosition(sf::Vector2{x, y});
+  this->pos = pos;
+  this->sprite->setPosition(pos);
 }
 
-void Character::Update(CharacterMovement movement) {
+void Character::Animate(CharacterMovement movement) {
   switch (movement) {
   case CharacterMovement::Idle:
     characterAnimationCycle = 6;
@@ -57,6 +58,13 @@ void Character::Update(CharacterMovement movement) {
   }
 }
 
+void Character::Update(CharacterMovement movement) {
+  this->sprite->setPosition(pos);
+	this->Animate(movement);
+}
+
 void Character::Draw() { this->window->draw(*sprite); }
 
-Character::~Character() {}
+Character::~Character() {
+	delete this->sprite;
+}

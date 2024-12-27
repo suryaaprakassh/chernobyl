@@ -23,12 +23,14 @@ private:
 
 	uint characterAnimationCycle=7;
 
-  uint x, y;
 
 public:
+	sf::Vector2f pos;
+	
   Character(sf::RenderWindow *window, const char *texturePath,
-            float x = 0, float y = 0);
+            sf::Vector2f = {0.f,0.f});
   void Draw();
 	void Update(CharacterMovement movement);
+	void Animate(CharacterMovement movement);
   ~Character();
 };
