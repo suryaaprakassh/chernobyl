@@ -18,7 +18,6 @@ private:
   sf::Texture Rtexture;
   sf::Texture Itexture;
   sf::Texture Jtexture;
-  sf::Texture Ltexture;
 	sf::Clock *clock;
 	sf::IntRect characterRect;
 

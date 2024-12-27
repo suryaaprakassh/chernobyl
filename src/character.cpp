@@ -14,10 +14,7 @@ Character::Character(sf::RenderWindow *window, const char *texturePath, float x,
   if (!Itexture.loadFromFile((fullPath / "Idle.png").string())) {
     std::cout << "[ERROR] could not load texture\n";
   }
-  if (!Rtexture.loadFromFile((fullPath / "Right.png").string())) {
-    std::cout << "[ERROR] could not load texture\n";
-  }
-  if (!Ltexture.loadFromFile((fullPath / "Left.png").string())) {
+  if (!Rtexture.loadFromFile((fullPath / "Left.png").string())) {
     std::cout << "[ERROR] could not load texture\n";
   }
   if (!Jtexture.loadFromFile((fullPath / "Right.png").string())) {
@@ -34,14 +31,20 @@ void Character::Update(CharacterMovement movement) {
   case CharacterMovement::Idle:
     characterAnimationCycle = 6;
     this->sprite->setTexture(this->Itexture);
+    this->sprite->setScale({1.f, 1.f});
+    this->sprite->setOrigin({0.f, 0.f});
     break;
   case CharacterMovement::Left:
     characterAnimationCycle = 7;
-    this->sprite->setTexture(this->Ltexture);
+    this->sprite->setTexture(this->Rtexture);
+    this->sprite->setScale({1.f, 1.f});
+    this->sprite->setOrigin({0.f, 0.f});
     break;
   case CharacterMovement::Right:
     characterAnimationCycle = 7;
     this->sprite->setTexture(this->Rtexture);
+    this->sprite->setScale({-1.f, 1.f});
+    this->sprite->setOrigin({this->sprite->getGlobalBounds().size.x, 0.f});
     break;
   case CharacterMovement::Jump:
     break;
