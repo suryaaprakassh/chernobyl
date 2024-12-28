@@ -3,34 +3,33 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Vector2.hpp>
 
-
-enum class CharacterMovement {
-	Jump,
-	Left,
-	Right,
-	Idle
-};
+enum class CharacterMovement { Jump, Left, Right, Idle ,Shoot};
 
 class Character {
-private:
-  sf::RenderWindow *window;
-  sf::Sprite *sprite;
-  sf::Texture Rtexture;
-  sf::Texture Itexture;
-  sf::Texture Jtexture;
-	sf::Clock *clock;
-	sf::IntRect characterRect;
-
-	uint characterAnimationCycle=7;
-
-
 public:
-	sf::Vector2f pos;
-	
+  sf::RenderWindow *window;
+  std::unique_ptr<sf::Sprite> sprite;
+  sf::Texture Rtexture, Itexture, Jtexture,Stexture;
+  sf::Clock *clock;
+  sf::IntRect characterRect;
+  CharacterMovement state;
+
+  uint characterAnimationCycle = 7;
+  sf::Vector2f pos, vel;
+
   Character(sf::RenderWindow *window, const char *texturePath,
-            sf::Vector2f = {0.f,0.f});
-  void Draw();
-	void Update(CharacterMovement movement);
-	void Animate(CharacterMovement movement);
-  ~Character();
+            sf::Vector2f = {0.0f, 0.0f});
+  void Draw() const;
+  void setState(CharacterMovement movement);
+  virtual void Update() = 0;
+  virtual void Animate() = 0;
+  virtual ~Character() = default;
+};
+
+class Soldier : public Character {
+public:
+  Soldier(sf::RenderWindow *window, const char *texturePath,
+          sf::Vector2f = {0.0f, 0.0f});
+  void Update();
+  void Animate();
 };

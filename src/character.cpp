@@ -21,16 +21,37 @@ Character::Character(sf::RenderWindow *window, const char *texturePath,
     std::cout << "[ERROR] could not load texture\n";
   }
 
+  if (!Stexture.loadFromFile((fullPath / "Shot_1.png").string())) {
+    std::cout << "[ERROR] could not load texture\n";
+  }
+
   this->characterRect = sf::IntRect({0, 0}, {128, 128});
-  this->sprite = new sf::Sprite(Itexture, this->characterRect);
+  this->sprite = std::make_unique<sf::Sprite>(Itexture, this->characterRect);
   this->pos = pos;
   this->sprite->setPosition(pos);
 }
 
-void Character::Animate(CharacterMovement movement) {
-  switch (movement) {
+void Character::Draw() const { this->window->draw(*sprite); }
+
+void Character::setState(CharacterMovement movement) {
+  if (this->state == CharacterMovement::Left &&
+      movement == CharacterMovement::Right) {
+    this->state = CharacterMovement::Idle;
+  } else if (this->state == CharacterMovement::Right &&
+             movement == CharacterMovement::Left) {
+    this->state = CharacterMovement::Idle;
+  } else if (this->state == CharacterMovement::Shoot &&
+             movement == CharacterMovement::Shoot) {
+    this->state = CharacterMovement::Idle;
+  } else {
+    this->state = movement;
+  }
+}
+
+void Soldier::Animate() {
+  switch (this->state) {
   case CharacterMovement::Idle:
-    characterAnimationCycle = 6;
+    characterAnimationCycle = 5;
     this->sprite->setTexture(this->Itexture);
     this->sprite->setScale({1.f, 1.f});
     this->sprite->setOrigin({0.f, 0.f});
@@ -38,6 +59,12 @@ void Character::Animate(CharacterMovement movement) {
   case CharacterMovement::Left:
     characterAnimationCycle = 7;
     this->sprite->setTexture(this->Rtexture);
+    this->sprite->setScale({1.f, 1.f});
+    this->sprite->setOrigin({0.f, 0.f});
+    break;
+  case CharacterMovement::Shoot:
+    characterAnimationCycle = 4;
+    this->sprite->setTexture(this->Stexture);
     this->sprite->setScale({1.f, 1.f});
     this->sprite->setOrigin({0.f, 0.f});
     break;
@@ -50,21 +77,31 @@ void Character::Animate(CharacterMovement movement) {
   case CharacterMovement::Jump:
     break;
   }
+  this->characterRect.position.x += 128;
   if (this->characterRect.position.x >= (characterAnimationCycle * 128)) {
     this->characterRect.position.x = 0;
-  } else {
-    this->characterRect.position.x += 128;
-    this->sprite->setTextureRect(this->characterRect);
   }
+  this->sprite->setTextureRect(this->characterRect);
 }
 
-void Character::Update(CharacterMovement movement) {
+void Soldier::Update() {
+  switch (this->state) {
+  case CharacterMovement::Idle:
+    vel = {0, 0};
+    break;
+  case CharacterMovement::Left:
+    vel = {10, 0};
+    break;
+  case CharacterMovement::Right:
+    vel = {-10, 0};
+    break;
+  default:
+    break;
+  }
+  pos += vel;
   this->sprite->setPosition(pos);
-	this->Animate(movement);
 }
 
-void Character::Draw() { this->window->draw(*sprite); }
-
-Character::~Character() {
-	delete this->sprite;
-}
+Soldier::Soldier(sf::RenderWindow *window, const char *texturePath,
+                 sf::Vector2f pos)
+    : Character(window, texturePath, pos) {}

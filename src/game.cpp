@@ -1,10 +1,25 @@
 #include "game.hpp"
+#include <SFML/Graphics/CircleShape.hpp>
 #include <sys/types.h>
 
 void Game::handleEvents() {
   while (const std::optional event = window.pollEvent()) {
     if (event->is<sf::Event::Closed>()) {
       window.close();
+    } else if (const auto *key = event->getIf<sf::Event::KeyPressed>()) {
+      if (key->scancode == sf::Keyboard::Scancode::W) {
+        heros[currHero]->setState(CharacterMovement::Idle);
+        currHero = (currHero - 1 + noHeros) % noHeros;
+      } else if (key->scancode == sf::Keyboard::Scancode::S) {
+        heros[currHero]->setState(CharacterMovement::Idle);
+        currHero = (currHero + 1) % noHeros;
+      } else if (key->scancode == sf::Keyboard::Scancode::A) {
+        heros[currHero]->setState(CharacterMovement::Right);
+      } else if (key->scancode == sf::Keyboard::Scancode::D) {
+        heros[currHero]->setState(CharacterMovement::Left);
+      } else if (key->scancode == sf::Keyboard::Scancode::Space) {
+        heros[currHero]->setState(CharacterMovement::Shoot);
+      }
     }
   }
 }
@@ -12,18 +27,40 @@ void Game::handleEvents() {
 Game::Game(uint width, uint height, int framerate) {
   this->window = sf::RenderWindow(sf::VideoMode({width, height}), "CHERNOBYL");
   this->window.setFramerateLimit(framerate);
+  for (float x = 0; x < noHeros; x++) {
+    heros.push_back(std::make_unique<Soldier>(&window, "soldier",
+                                              sf::Vector2f{0.0, 200 * x}));
+  }
+}
+
+void Game::draw() {
+  for (const auto &h : heros) {
+    h->Draw();
+  }
+}
+
+void Game::update() {
+  for (const auto &h : heros) {
+    h->Update();
+  }
+}
+
+void Game::animate() {
+  for (const auto &h : heros) {
+    h->Animate();
+  }
 }
 
 void Game::run() {
-  Character hero(&this->window, "soldier");
   while (window.isOpen()) {
     this->handleEvents();
+    this->update();
     this->window.clear(sf::Color::White);
-    hero.Draw();
+    this->draw();
     this->window.display();
-		if(this->clock.getElapsedTime().asSeconds()>=(1.0/(20.0))){
-			hero.Update(CharacterMovement::Right);
-			this->clock.restart();
-		}
+    if (this->clock.getElapsedTime().asSeconds() >= (1.0 / (30.0))) {
+      this->animate();
+      this->clock.restart();
+    }
   }
 }
