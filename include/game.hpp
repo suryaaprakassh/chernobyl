@@ -15,6 +15,8 @@ private:
 	int noOfAlive=4;
   int currHero = 0;
   bool gameRunning = true;
+	int zombieTimer=5; 
+	int currentZombieTime=0;
   Randor randor;
 
   std::shared_ptr<sf::Vector2u> worldCords;

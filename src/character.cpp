@@ -36,7 +36,6 @@ void Character::LoadTextures(const char *texturePath) {
 void Character::Draw() const {
   if (!this->alive)
     return;
-  this->window->draw(collider);
   this->window->draw(*sprite);
 }
 
