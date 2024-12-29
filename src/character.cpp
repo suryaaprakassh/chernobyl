@@ -5,6 +5,18 @@
 #include <SFML/System/Vector2.hpp>
 #include <memory>
 
+Character::Character(sf::RenderWindow *window, const char *texturePath,
+                     sf::Vector2f pos) {
+  this->window = window;
+  this->characterRect = sf::IntRect({0, 0}, spriteSize);
+  this->sprite = std::make_unique<sf::Sprite>(Itexture, this->characterRect);
+  this->pos = pos;
+  this->sprite->setPosition(pos);
+  this->collider.setFillColor(sf::Color::White);
+  this->collider.setOutlineThickness(2.0f);
+  this->collider.setOutlineColor(sf::Color::Black);
+}
+
 void Character::LoadTextures(const char *texturePath) {
   std::filesystem::path fullPath =
       std::filesystem::current_path() / "assests" / texturePath;
@@ -21,16 +33,12 @@ void Character::LoadTextures(const char *texturePath) {
   }
 }
 
-Character::Character(sf::RenderWindow *window, const char *texturePath,
-                     sf::Vector2f pos) {
-  this->window = window;
-  this->characterRect = sf::IntRect({0, 0}, spriteSize);
-  this->sprite = std::make_unique<sf::Sprite>(Itexture, this->characterRect);
-  this->pos = pos;
-  this->sprite->setPosition(pos);
+void Character::Draw() const {
+  if (!this->alive)
+    return;
+  this->window->draw(collider);
+  this->window->draw(*sprite);
 }
-
-void Character::Draw() const { this->window->draw(*sprite); }
 
 void Character::setState(CharacterMovement movement) {
   if (this->state == CharacterMovement::Left &&
@@ -47,70 +55,10 @@ void Character::setState(CharacterMovement movement) {
   }
 }
 
-void Soldier::Animate() {
-  switch (this->state) {
-  case CharacterMovement::Idle:
-    characterAnimationCycle = 5;
-    this->sprite->setTexture(this->Itexture);
-    this->sprite->setScale({1.f, 1.f});
-    this->sprite->setOrigin({0.f, 0.f});
-    break;
-  case CharacterMovement::Left:
-    characterAnimationCycle = 7;
-    this->sprite->setTexture(this->Rtexture);
-    this->sprite->setScale({1.f, 1.f});
-    this->sprite->setOrigin({0.f, 0.f});
-    break;
-  case CharacterMovement::Shoot:
-    characterAnimationCycle = 4;
-    this->sprite->setTexture(this->Stexture);
-    this->sprite->setScale({1.f, 1.f});
-    this->sprite->setOrigin({0.f, 0.f});
-    break;
-  case CharacterMovement::Right:
-    characterAnimationCycle = 7;
-    this->sprite->setTexture(this->Rtexture);
-    this->sprite->setScale({-1.f, 1.f});
-    this->sprite->setOrigin({this->sprite->getGlobalBounds().size.x, 0.f});
-    break;
+bool Character::checkCollision(sf::RectangleShape &collider) {
+  if (this->collider.getGlobalBounds().findIntersection(
+          collider.getGlobalBounds())) {
+    return true;
   }
-  this->characterRect.position.x += spriteSize.x;
-  if (this->characterRect.position.x >=
-      (characterAnimationCycle * spriteSize.x)) {
-    this->characterRect.position.x = 0;
-  }
-  this->sprite->setTextureRect(this->characterRect);
-}
-
-void Soldier::Update() {
-  switch (this->state) {
-  case CharacterMovement::Idle:
-    vel = {0, 0};
-    break;
-  case CharacterMovement::Left:
-    vel = {5, 0};
-    break;
-  case CharacterMovement::Right:
-    vel = {-5, 0};
-    break;
-  case CharacterMovement::Shoot:
-    vel = {0, 0};
-    break;
-  default:
-    break;
-  }
-  this->makeBounds();
-  this->sprite->setPosition(pos);
-}
-
-Soldier::Soldier(sf::RenderWindow *window, const char *texturePath,
-                 std::shared_ptr<sf::Vector2u> worldBox, sf::Vector2f pos)
-    : Character(window, texturePath, pos), worldBox{worldBox} {
-  this->LoadTextures(texturePath);
-}
-
-void Soldier::makeBounds() {
-  if (pos.x + vel.x >= 0 && pos.x + spriteSize.x + vel.x <= worldBox->x) {
-    pos += vel;
-  }
+  return false;
 }

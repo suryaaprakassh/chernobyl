@@ -1,6 +1,16 @@
 #include "game.hpp"
 #include <SFML/Graphics/CircleShape.hpp>
+#include <cstdlib>
+#include <ctime>
+#include <memory>
 #include <sys/types.h>
+
+Game::Game(uint width, uint height, int framerate) {
+  this->worldCords = std::make_shared<sf::Vector2u>(width, height);
+  this->window = sf::RenderWindow(sf::VideoMode(*worldCords), "CHERNOBYL");
+  this->window.setFramerateLimit(framerate);
+  this->randor.setX(this->noHeros - 1);
+}
 
 void Game::handleEvents() {
   while (const std::optional event = window.pollEvent()) {
@@ -24,27 +34,39 @@ void Game::handleEvents() {
   }
 }
 
-Game::Game(uint width, uint height, int framerate) {
-  this->worldCords = std::make_shared<sf::Vector2u>(width, height);
-  this->window = sf::RenderWindow(sf::VideoMode(*worldCords), "CHERNOBYL");
-  this->window.setFramerateLimit(framerate);
-  for (float x = 0; x < noHeros; x++) {
-    heros.push_back(std::make_unique<Soldier>(&window, "soldier", worldCords,
-                                              sf::Vector2f{0.0, 200 * x}));
-  }
-}
-
 void Game::setHeros(int x) {
   this->noHeros = x;
+  this->noOfAlive = x;
   heros.clear();
   for (float x = 0; x < noHeros; x++) {
     heros.push_back(std::make_unique<Soldier>(&window, "soldier", worldCords,
-                                              sf::Vector2f{0.0, 200 * x}));
+                                              sf::Vector2f{400.0, 200 * x}));
   }
 }
+
+void Game::setZombie() {
+  zombies.clear();
+  zombies.resize(this->noHeros);
+
+  // init zombie
+  auto idx = this->randor.getRandom();
+  if (idx < 0 || idx >= noHeros) {
+    throw("Randor fucked!");
+  }
+  auto z = std::make_unique<Zombie>(&window, "zombie", worldCords,
+                                    sf::Vector2f{0.0f, idx * 200.f});
+  z->setState(CharacterMovement::Left);
+  zombies[idx].push_back(std::move(z));
+}
+
 void Game::draw() {
   for (const auto &h : heros) {
     h->Draw();
+  }
+  for (const auto &zz : zombies) {
+    for (const auto &z : zz) {
+      z->Draw();
+    }
   }
 }
 
@@ -52,28 +74,47 @@ void Game::update() {
   for (const auto &h : heros) {
     h->Update();
   }
+  std::stack<int> clearLevel;
+  for (int zIdx = 0; zIdx < noHeros; zIdx++) {
+    for (const auto &z : zombies[zIdx]) {
+      if (z->checkCollision(heros[zIdx]->collider)) {
+        heros[zIdx]->alive = false;
+        clearLevel.push(zIdx);
+      }
+      z->Update();
+    }
+  }
+
+  while (clearLevel.size()) {
+    zombies[clearLevel.top()].clear();
+    clearLevel.pop();
+  }
 }
 
 void Game::animate() {
   for (const auto &h : heros) {
     h->Animate();
   }
+  for (const auto &zz : zombies) {
+    for (const auto &z : zz) {
+      z->Animate();
+    }
+  }
 }
 
 void Game::run() {
-  Zombie z(&window, "zombie", this->worldCords,{0.0f,35.f});
-  z.setState(CharacterMovement::Left);
+  this->setZombie();
   while (gameRunning && window.isOpen()) {
     this->handleEvents();
     this->update();
-    z.Update();
     this->window.clear(sf::Color::White);
     this->draw();
-    z.Draw();
     this->window.display();
     if (this->clock.getElapsedTime().asSeconds() >= (1.0 / (20.0))) {
       this->animate();
-      z.Animate();
-      this->clock.restart(); }
+      this->clock.restart();
+    }
   }
 }
+
+void summonZombie() {}

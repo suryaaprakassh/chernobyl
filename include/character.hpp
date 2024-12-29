@@ -1,4 +1,6 @@
+#pragma once
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -14,13 +16,16 @@ public:
   sf::IntRect characterRect;
   CharacterMovement state = CharacterMovement::Idle;
   sf::Vector2i spriteSize = {128, 128};
+	bool alive =true;
 
   uint characterAnimationCycle = 7;
   sf::Vector2f pos, vel;
+	sf::RectangleShape collider;
 
   Character(sf::RenderWindow *, const char *, sf::Vector2f = {0.0f, 0.0f});
   void Draw() const;
   void setState(CharacterMovement);
+	bool checkCollision(sf::RectangleShape&);
   virtual void Update() = 0;
   virtual void Animate() = 0;
   virtual void makeBounds() = 0;
