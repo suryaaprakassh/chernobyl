@@ -34,9 +34,9 @@ Game::Game(uint width, uint height, int framerate) {
   }
 }
 
-void Game::setHeros(int x) { 
-	this->noHeros = x;
-	heros.clear();
+void Game::setHeros(int x) {
+  this->noHeros = x;
+  heros.clear();
   for (float x = 0; x < noHeros; x++) {
     heros.push_back(std::make_unique<Soldier>(&window, "soldier", worldCords,
                                               sf::Vector2f{0.0, 200 * x}));
@@ -61,15 +61,19 @@ void Game::animate() {
 }
 
 void Game::run() {
+  Zombie z(&window, "zombie", this->worldCords,{0.0f,35.f});
+  z.setState(CharacterMovement::Left);
   while (gameRunning && window.isOpen()) {
     this->handleEvents();
     this->update();
+    z.Update();
     this->window.clear(sf::Color::White);
     this->draw();
+    z.Draw();
     this->window.display();
-    if (this->clock.getElapsedTime().asSeconds() >= (1.0 / (30.0))) {
+    if (this->clock.getElapsedTime().asSeconds() >= (1.0 / (20.0))) {
       this->animate();
-      this->clock.restart();
-    }
+      z.Animate();
+      this->clock.restart(); }
   }
 }

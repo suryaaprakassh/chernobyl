@@ -1,7 +1,7 @@
 build
 out
-.cache
-.idea
+.cache .idea
 .vs
 .vscode
 .DS_Store
+.cache
