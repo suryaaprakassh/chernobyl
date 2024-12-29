@@ -3,13 +3,13 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Vector2.hpp>
 
-enum class CharacterMovement { Jump, Left, Right, Idle ,Shoot};
+enum class CharacterMovement { Jump, Left, Right, Idle, Shoot };
 
 class Character {
 public:
   sf::RenderWindow *window;
   std::unique_ptr<sf::Sprite> sprite;
-  sf::Texture Rtexture, Itexture, Jtexture,Stexture;
+  sf::Texture Rtexture, Itexture, Jtexture, Stexture;
   sf::Clock *clock;
   sf::IntRect characterRect;
   CharacterMovement state;
@@ -27,9 +27,13 @@ public:
 };
 
 class Soldier : public Character {
+private:
+  std::shared_ptr<sf::Vector2u> worldBox;
+
 public:
   Soldier(sf::RenderWindow *window, const char *texturePath,
-          sf::Vector2f = {0.0f, 0.0f});
+          std::shared_ptr<sf::Vector2u> worldBox, sf::Vector2f = {0.0f, 0.0f});
+	void makeBounds();
   void Update();
   void Animate();
 };

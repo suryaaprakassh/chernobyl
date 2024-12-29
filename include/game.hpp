@@ -1,5 +1,6 @@
 #include "character.hpp"
 #include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
 
 class Game {
 private:
@@ -9,6 +10,9 @@ private:
   void handleEvents();
 	int noHeros=4;
 	int currHero=0;
+	bool gameRunning = true;
+
+	std::shared_ptr<sf::Vector2u> worldCords;
 
   void draw();
   void update();
@@ -16,5 +20,6 @@ private:
 
 public:
   Game(uint width, uint height, int framerate);
+	void setHeros(int);
   void run();
 };

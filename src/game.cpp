@@ -25,14 +25,23 @@ void Game::handleEvents() {
 }
 
 Game::Game(uint width, uint height, int framerate) {
-  this->window = sf::RenderWindow(sf::VideoMode({width, height}), "CHERNOBYL");
+  this->worldCords = std::make_shared<sf::Vector2u>(width, height);
+  this->window = sf::RenderWindow(sf::VideoMode(*worldCords), "CHERNOBYL");
   this->window.setFramerateLimit(framerate);
   for (float x = 0; x < noHeros; x++) {
-    heros.push_back(std::make_unique<Soldier>(&window, "soldier",
+    heros.push_back(std::make_unique<Soldier>(&window, "soldier", worldCords,
                                               sf::Vector2f{0.0, 200 * x}));
   }
 }
 
+void Game::setHeros(int x) { 
+	this->noHeros = x;
+	heros.clear();
+  for (float x = 0; x < noHeros; x++) {
+    heros.push_back(std::make_unique<Soldier>(&window, "soldier", worldCords,
+                                              sf::Vector2f{0.0, 200 * x}));
+  }
+}
 void Game::draw() {
   for (const auto &h : heros) {
     h->Draw();
@@ -52,7 +61,7 @@ void Game::animate() {
 }
 
 void Game::run() {
-  while (window.isOpen()) {
+  while (gameRunning && window.isOpen()) {
     this->handleEvents();
     this->update();
     this->window.clear(sf::Color::White);

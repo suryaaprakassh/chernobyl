@@ -3,6 +3,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <memory>
 
 Character::Character(sf::RenderWindow *window, const char *texturePath,
                      sf::Vector2f pos) {
@@ -95,13 +96,22 @@ void Soldier::Update() {
   case CharacterMovement::Right:
     vel = {-10, 0};
     break;
+  case CharacterMovement::Shoot:
+    vel = {0, 0};
+    break;
   default:
     break;
   }
-  pos += vel;
+  this->makeBounds();
   this->sprite->setPosition(pos);
 }
 
 Soldier::Soldier(sf::RenderWindow *window, const char *texturePath,
-                 sf::Vector2f pos)
-    : Character(window, texturePath, pos) {}
+                 std::shared_ptr<sf::Vector2u> worldBox, sf::Vector2f pos)
+    : Character(window, texturePath, pos), worldBox{worldBox} {}
+
+void Soldier::makeBounds() {
+  if (pos.x + vel.x >= 0 && pos.x + 128 + vel.x <= worldBox->x) {
+    pos += vel;
+  }
+}
