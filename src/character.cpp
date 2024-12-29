@@ -40,15 +40,20 @@ void Character::Draw() const {
   this->window->draw(*sprite);
 }
 
+void Character::setDirection(Direction direction) {
+  if (direction == Direction::Left) {
+    this->direction = Direction::Left;
+    this->sprite->setScale({1.f, 1.f});
+    this->sprite->setOrigin({0.f, 0.f});
+  } else if (direction == Direction::Right) {
+    this->direction = Direction::Right;
+    this->sprite->setScale({-1.f, 1.f});
+    this->sprite->setOrigin({this->sprite->getGlobalBounds().size.x, 0.f});
+  }
+}
+
 void Character::setState(CharacterMovement movement) {
-  if (this->state == CharacterMovement::Left &&
-      movement == CharacterMovement::Right) {
-    this->state = CharacterMovement::Idle;
-  } else if (this->state == CharacterMovement::Right &&
-             movement == CharacterMovement::Left) {
-    this->state = CharacterMovement::Idle;
-  } else if (this->state == CharacterMovement::Shoot &&
-             movement == CharacterMovement::Shoot) {
+  if (movement == this->state) {
     this->state = CharacterMovement::Idle;
   } else {
     this->state = movement;

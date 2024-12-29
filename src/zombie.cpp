@@ -11,7 +11,7 @@ Zombie::Zombie(sf::RenderWindow *window, const char *texturePath,
   this->pos = pos;
   this->sprite->setPosition(pos);
   this->collider.setSize({60, 60});
-  this->collider.setPosition({this->pos.x + 25, this->pos.y+60});
+  this->collider.setPosition({this->pos.x + 25, this->pos.y + 60});
   this->LoadTextures(texturePath);
 }
 
@@ -36,26 +36,14 @@ void Zombie::Animate() {
   case CharacterMovement::Idle:
     characterAnimationCycle = 4;
     this->sprite->setTexture(this->Itexture);
-    this->sprite->setScale({1.f, 1.f});
-    this->sprite->setOrigin({0.f, 0.f});
     break;
-  case CharacterMovement::Left:
+  case CharacterMovement::Run:
     characterAnimationCycle = 7;
     this->sprite->setTexture(this->Rtexture);
-    this->sprite->setScale({1.f, 1.f});
-    this->sprite->setOrigin({0.f, 0.f});
     break;
   case CharacterMovement::Shoot:
     characterAnimationCycle = 4;
     this->sprite->setTexture(this->Stexture);
-    this->sprite->setScale({1.f, 1.f});
-    this->sprite->setOrigin({0.f, 0.f});
-    break;
-  case CharacterMovement::Right:
-    characterAnimationCycle = 7;
-    this->sprite->setTexture(this->Rtexture);
-    this->sprite->setScale({-1.f, 1.f});
-    this->sprite->setOrigin({this->sprite->getGlobalBounds().size.x, 0.f});
     break;
   }
   this->characterRect.position.x += spriteSize.x;
@@ -71,25 +59,23 @@ void Zombie::Update() {
   case CharacterMovement::Idle:
     vel = {0, 0};
     break;
-  case CharacterMovement::Left:
-    vel = {2, 0};
-    break;
-  case CharacterMovement::Right:
-    vel = {-2, 0};
-    break;
-  case CharacterMovement::Shoot:
-    vel = {0, 0};
+  case CharacterMovement::Run:
+    if (direction == Direction::Left) {
+      vel = {2, 0};
+    } else {
+      vel = {-2, 0};
+    }
     break;
   default:
     break;
   }
   this->makeBounds();
   this->sprite->setPosition(pos);
-  this->collider.setPosition({this->pos.x + 25, this->pos.y+60});
+  this->collider.setPosition({this->pos.x + 25, this->pos.y + 60});
 }
 
 void Zombie::makeBounds() {
   if (pos.x + vel.x >= 0 && pos.x + spriteSize.x + vel.x <= worldBox->x) {
-    pos += vel;
+		pos+=vel;
   }
 }

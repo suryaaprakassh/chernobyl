@@ -4,6 +4,7 @@
 #include <ctime>
 #include <memory>
 #include <sys/types.h>
+#include <iostream>
 
 Game::Game(uint width, uint height, int framerate) {
   this->worldCords = std::make_shared<sf::Vector2u>(width, height);
@@ -24,9 +25,11 @@ void Game::handleEvents() {
         heros[currHero]->setState(CharacterMovement::Idle);
         currHero = (currHero + 1) % noHeros;
       } else if (key->scancode == sf::Keyboard::Scancode::A) {
-        heros[currHero]->setState(CharacterMovement::Right);
+				heros[currHero]->setDirection(Direction::Right);
+        heros[currHero]->setState(CharacterMovement::Run);
       } else if (key->scancode == sf::Keyboard::Scancode::D) {
-        heros[currHero]->setState(CharacterMovement::Left);
+				heros[currHero]->setDirection(Direction::Left);
+        heros[currHero]->setState(CharacterMovement::Run);
       } else if (key->scancode == sf::Keyboard::Scancode::Space) {
         heros[currHero]->setState(CharacterMovement::Shoot);
       }
@@ -51,13 +54,13 @@ void Game::setZombie() {
   // init zombie
   auto idx = this->randor.getRandom();
   if (idx < 0 || idx >= noHeros) {
-    throw("Randor fucked!");
+		std::cerr<<"Randor Fucked\n"<<idx;
+		return;
   }
   auto z = std::make_unique<Zombie>(&window, "zombie", worldCords,
                                     sf::Vector2f{0.0f, idx * 200.f});
-  z->setState(CharacterMovement::Left);
-  zombies[idx].push_back(std::move(z));
-}
+  z->setState(CharacterMovement::Run);
+  zombies[idx].push_back(std::move(z)); }
 
 void Game::draw() {
   for (const auto &h : heros) {

@@ -13,26 +13,14 @@ void Soldier::Animate() {
   case CharacterMovement::Idle:
     characterAnimationCycle = 5;
     this->sprite->setTexture(this->Itexture);
-    this->sprite->setScale({1.f, 1.f});
-    this->sprite->setOrigin({0.f, 0.f});
     break;
-  case CharacterMovement::Left:
+  case CharacterMovement::Run:
     characterAnimationCycle = 7;
     this->sprite->setTexture(this->Rtexture);
-    this->sprite->setScale({1.f, 1.f});
-    this->sprite->setOrigin({0.f, 0.f});
     break;
   case CharacterMovement::Shoot:
     characterAnimationCycle = 4;
     this->sprite->setTexture(this->Stexture);
-    this->sprite->setScale({1.f, 1.f});
-    this->sprite->setOrigin({0.f, 0.f});
-    break;
-  case CharacterMovement::Right:
-    characterAnimationCycle = 7;
-    this->sprite->setTexture(this->Rtexture);
-    this->sprite->setScale({-1.f, 1.f});
-    this->sprite->setOrigin({this->sprite->getGlobalBounds().size.x, 0.f});
     break;
   }
   this->characterRect.position.x += spriteSize.x;
@@ -48,11 +36,12 @@ void Soldier::Update() {
   case CharacterMovement::Idle:
     vel = {0, 0};
     break;
-  case CharacterMovement::Left:
-    vel = {5, 0};
-    break;
-  case CharacterMovement::Right:
-    vel = {-5, 0};
+  case CharacterMovement::Run:
+    if (direction == Direction::Left) {
+      vel = {5, 0};
+    } else {
+      vel = {-5, 0};
+    }
     break;
   case CharacterMovement::Shoot:
     vel = {0, 0};

@@ -5,7 +5,9 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Vector2.hpp>
 
-enum class CharacterMovement { Left, Right, Idle, Shoot };
+enum class CharacterMovement { Run, Idle, Shoot };
+
+enum class Direction {Left, Right};
 
 class Character {
 public:
@@ -14,18 +16,20 @@ public:
   sf::Texture Rtexture, Itexture, Stexture;
   sf::Clock *clock;
   sf::IntRect characterRect;
+	Direction direction = Direction::Left;
   CharacterMovement state = CharacterMovement::Idle;
   sf::Vector2i spriteSize = {128, 128};
-	bool alive =true;
+  bool alive = true;
 
   uint characterAnimationCycle = 7;
   sf::Vector2f pos, vel;
-	sf::RectangleShape collider;
+  sf::RectangleShape collider;
 
   Character(sf::RenderWindow *, const char *, sf::Vector2f = {0.0f, 0.0f});
   void Draw() const;
   void setState(CharacterMovement);
-	bool checkCollision(sf::RectangleShape&);
+	void setDirection(Direction);
+  bool checkCollision(sf::RectangleShape &);
   virtual void Update() = 0;
   virtual void Animate() = 0;
   virtual void makeBounds() = 0;
